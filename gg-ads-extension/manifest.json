@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "GG Ads Highlighter",
+  "version": "1.0",
+  "description": "Highlight rows in Google Ads based on Cost and Conv. Value/Cost",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Highlight Ads Data"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ]
+}
