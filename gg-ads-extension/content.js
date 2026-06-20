@@ -22,8 +22,10 @@ if (!window.hasAdsHighlighterListener) {
       // Helper to parse text like $4.13 or 1,234.56
       const parseAdValue = (text) => {
         if (!text) return NaN;
-        // Remove comma (thousands separator) and any non-numeric/dot/minus characters
-        const cleaned = text.replace(/,/g, '').replace(/[^0-9.-]+/g, "");
+        // Remove comma (thousands separator)
+        let cleaned = text.replace(/,/g, '');
+        // Remove currency symbols, spaces, letters, leaving only digits, dots, and minus signs
+        cleaned = cleaned.replace(/[^0-9.-]+/g, "");
         return parseFloat(cleaned);
       };
 
