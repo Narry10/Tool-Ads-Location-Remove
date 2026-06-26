@@ -87,12 +87,19 @@ if (!window.hasAdsHighlighterListener) {
             }
           }
 
-          // 3. Extract Country Name
+          // 3. Extract Name (Campaign Name or Country Name)
+          const campaignNameCell = row.querySelector('campaign-name[navi-id="campaign-table-campaign-name-cell"] a');
           const nameCell = row.querySelector('ess-cell[essfield="country_localized_full_name"] .location-cell');
-          const countryName = nameCell ? nameCell.innerText.trim() : "Unknown";
+          
+          let displayName = "Unknown";
+          if (campaignNameCell && campaignNameCell.innerText.trim()) {
+            displayName = campaignNameCell.innerText.trim();
+          } else if (nameCell) {
+            displayName = nameCell.innerText.trim();
+          }
           
           failedCountries.push({
-            name: countryName,
+            name: displayName,
             cost: costText || '-',
             conv: convText || '-',
             allConv: allConvText || '-'
