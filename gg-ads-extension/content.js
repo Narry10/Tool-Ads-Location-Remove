@@ -1,113 +1,102 @@
-// Ensure we only add the listener once
 if (!window.hasAdsHighlighterListener) {
   window.hasAdsHighlighterListener = true;
 
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === 'highlight') {
-      const costThreshold = request.costThreshold;
-      const convValueThreshold = request.convValueThreshold;
-      const doTick = request.doTick;
-      const failedCountries = [];
+  chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+    if (request.action !== 'highlight') return false;
 
-      // Reset previous highlights
-      document.querySelectorAll('.particle-table-row').forEach(row => {
-        const cells = row.querySelectorAll('ess-cell');
-        cells.forEach(cell => {
-          cell.style.backgroundColor = '';
-        });
-      });
+    try {
+      const items = [];
+      const pageUrl = new URL(window.location.href);
+      const isLocationPage = pageUrl.pathname.includes('matchedlocations');
+      const customerId = pageUrl.searchParams.get('ocid') || pageUrl.searchParams.get('customerId') || null;
+      const pageCampaignId = pageUrl.searchParams.get('campaignId');
+      const pageCampaignName = document.querySelector('.campaign-name.entity-name')?.textContent?.trim()
+        || document.querySelector('[class*="campaign-name"]')?.textContent?.trim()
+        || null;
 
-      const rows = document.querySelectorAll('.particle-table-row');
-
-      // Helper to parse text like $4.13 or 1,234.56
       const parseAdValue = (text) => {
         if (!text) return NaN;
-        // Remove comma (thousands separator)
-        let cleaned = text.replace(/,/g, '');
-        // Remove currency symbols, spaces, letters, leaving only digits, dots, and minus signs
-        cleaned = cleaned.replace(/[^0-9.-]+/g, "");
-        return parseFloat(cleaned);
+        const cleaned = text.replace(/,/g, '').replace(/[^0-9.-]+/g, '');
+        return Number.parseFloat(cleaned);
       };
 
-      // Helper to simulate a real user click
       const simulateClick = (element) => {
-        const eventOptions = {
-          view: window,
-          bubbles: true,
-          cancelable: true,
-          buttons: 1
-        };
-        
-        // Fire a full sequence of events that modern web frameworks expect
-        ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(eventType => {
-          const ev = new MouseEvent(eventType, eventOptions);
-          element.dispatchEvent(ev);
+        const options = { view: window, bubbles: true, cancelable: true, buttons: 1 };
+        ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach((type) => {
+          const EventClass = type.startsWith('pointer') && window.PointerEvent ? PointerEvent : MouseEvent;
+          element.dispatchEvent(new EventClass(type, options));
         });
       };
 
-      rows.forEach(row => {
-        // Find checkbox to skip headers/totals and allow ticking
-        const checkbox = row.querySelector('mat-checkbox');
+      const campaignIdFromLink = (link) => {
+        if (!link?.href) return null;
+        try {
+          const url = new URL(link.href, window.location.origin);
+          return url.searchParams.get('campaignId') || url.searchParams.get('campaignid');
+        } catch { return null; }
+      };
+
+      document.querySelectorAll('.particle-table-row ess-cell').forEach((cell) => { cell.style.backgroundColor = ''; });
+      const rows = document.querySelectorAll('.particle-table-row');
+
+      rows.forEach((row, rowIndex) => {
+        const checkbox = row.querySelector('mat-checkbox, material-checkbox');
         if (!checkbox) return;
-
-        // Extract values
         const costCell = row.querySelector('ess-cell[essfield="stats.cost"]');
-        const costText = costCell ? costCell.innerText.trim() : "";
-        const costVal = parseAdValue(costText);
-
         const convCell = row.querySelector('ess-cell[essfield="stats.conversion_value_per_cost"]');
-        const convText = convCell ? convCell.innerText.trim() : "";
-        const convVal = parseAdValue(convText);
-
         const allConvCell = row.querySelector('ess-cell[essfield="stats.all_conversion_value_per_cost"]');
-        const allConvText = allConvCell ? allConvCell.innerText.trim() : "";
-        const allConvVal = parseAdValue(allConvText);
+        const costText = costCell?.innerText.trim() || '';
+        const convText = convCell?.innerText.trim() || '';
+        const allConvText = allConvCell?.innerText.trim() || '';
+        const cost = parseAdValue(costText);
+        const conv = parseAdValue(convText);
+        const allConv = parseAdValue(allConvText);
+        const isCostHigh = Number.isFinite(cost) && cost >= request.costThreshold;
+        const isConvLow = Number.isFinite(conv) && conv <= request.convValueThreshold;
+        const isAllConvLow = Number.isFinite(allConv) && allConv <= request.convValueThreshold;
+        if (!isCostHigh || (!isConvLow && !isAllConvLow)) return;
 
-        // Conditions (using >= and <= for inclusive comparison)
-        const isCostHigh = !isNaN(costVal) && costVal >= costThreshold;
-        const isConvLow = !isNaN(convVal) && convVal <= convValueThreshold;
-        const isAllConvLow = !isNaN(allConvVal) && allConvVal <= convValueThreshold;
+        if (costCell) costCell.style.backgroundColor = '#ffcccc';
+        if (isConvLow && convCell) convCell.style.backgroundColor = '#ffcccc';
+        if (isAllConvLow && allConvCell) allConvCell.style.backgroundColor = '#ffcccc';
 
-        // Condition: Cost >= threshold AND (Conv Value <= threshold OR All Conv Value <= threshold)
-        if (isCostHigh && (isConvLow || isAllConvLow)) {
-          
-          // 1. Highlight cells
-          if (costCell) costCell.style.backgroundColor = '#ffcccc'; // light red
-          if (isConvLow && convCell) convCell.style.backgroundColor = '#ffcccc';
-          if (isAllConvLow && allConvCell) allConvCell.style.backgroundColor = '#ffcccc';
-
-          // 2. Tick the checkbox if requested and not already ticked
-          if (doTick && checkbox.getAttribute('aria-checked') === 'false') {
-            // Target the specific container or the checkbox itself
-            const container = checkbox.querySelector('.mat-checkbox-container');
-            if (container) {
-              simulateClick(container);
-            } else {
-              simulateClick(checkbox);
-            }
-          }
-
-          // 3. Extract Name (Campaign Name or Country Name)
-          const campaignNameCell = row.querySelector('campaign-name[navi-id="campaign-table-campaign-name-cell"] a');
-          const nameCell = row.querySelector('ess-cell[essfield="country_localized_full_name"] .location-cell');
-          
-          let displayName = "Unknown";
-          if (campaignNameCell && campaignNameCell.innerText.trim()) {
-            displayName = campaignNameCell.innerText.trim();
-          } else if (nameCell) {
-            displayName = nameCell.innerText.trim();
-          }
-          
-          failedCountries.push({
-            name: displayName,
-            cost: costText || '-',
-            conv: convText || '-',
-            allConv: allConvText || '-'
-          });
+        const checked = checkbox.getAttribute('aria-checked') === 'true'
+          || checkbox.querySelector('input[type="checkbox"]')?.checked;
+        if (request.doTick && !checked) {
+          simulateClick(checkbox.querySelector('.mat-checkbox-container, [class*="checkbox-container"]') || checkbox);
         }
+
+        const campaignLink = row.querySelector('campaign-name[navi-id="campaign-table-campaign-name-cell"] a, campaign-name a, a[href*="campaignId"]');
+        const campaignName = isLocationPage ? pageCampaignName : campaignLink?.textContent?.trim();
+        const campaignId = isLocationPage ? pageCampaignId : campaignIdFromLink(campaignLink);
+        const locationCell = row.querySelector('ess-cell[essfield="country_localized_full_name"] .location-cell, ess-cell[essfield="country_localized_full_name"]');
+        const locationName = locationCell?.textContent?.trim() || null;
+        const entityType = isLocationPage || locationName ? 'location' : 'campaign';
+        const fallbackName = entityType === 'location' ? locationName : campaignName;
+        if (!fallbackName) return;
+        const locationId = entityType === 'location'
+          ? row.getAttribute('data-entity-id') || locationCell?.getAttribute('data-entity-id') || locationName.toLowerCase().replace(/\s+/g, '-')
+          : null;
+
+        items.push({
+          entityType,
+          displayName: fallbackName,
+          campaignId: campaignId || `campaign-${campaignName || pageCampaignName || 'unknown'}`,
+          campaignName: campaignName || pageCampaignName || 'Unknown',
+          locationId,
+          locationName: entityType === 'location' ? locationName : null,
+          rowIndex,
+          metrics: { cost, conv, allConv, costText, convText, allConvText }
+        });
       });
 
-      sendResponse({ status: "success", failedCountries: failedCountries });
+      sendResponse({
+        status: 'success',
+        items,
+        context: { pageType: isLocationPage ? 'location' : 'campaign', customerId, campaignId: pageCampaignId, campaignName: pageCampaignName }
+      });
+    } catch (error) {
+      sendResponse({ status: 'error', message: error.message, items: [] });
     }
     return true;
   });

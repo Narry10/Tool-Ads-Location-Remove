@@ -1,0 +1,9 @@
+{
+  "name": "ads-fox-reminder",
+  "private": true,
+  "scripts": {
+    "build:extension": "node gg-ads-extension/scripts/generate-config.mjs",
+    "build": "npm run build:extension && npm --prefix web run build",
+    "test": "npm --prefix web run test && npm --prefix functions test"
+  }
+}

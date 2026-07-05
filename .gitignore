@@ -1,0 +1,11 @@
+node_modules/
+**/node_modules/
+web/dist/
+functions/lib/
+.firebase/
+firebase-debug.log*
+.DS_Store
+**/.env
+**/.env.*
+!**/.env.example
+gg-ads-extension/config.js

@@ -1,0 +1,28 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedInAs(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      allow read, create, update, delete: if signedInAs(uid);
+
+      match /actions/{actionId} {
+        allow read, delete: if signedInAs(uid);
+        allow create, update: if signedInAs(uid)
+          && request.resource.data.ownerId == uid
+          && request.resource.data.entityType in ['campaign', 'location']
+          && request.resource.data.actionType is string
+          && request.resource.data.batchId is string
+          && (!('schemaVersion' in request.resource.data) || request.resource.data.schemaVersion == 2);
+      }
+
+      match /digests/{digestId} {
+        allow read: if signedInAs(uid);
+        allow write: if false;
+      }
+    }
+  }
+}

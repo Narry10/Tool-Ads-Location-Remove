@@ -1,163 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
   <meta charset="utf-8">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      width: 400px;
-      padding: 15px;
-      background-color: #f8f9fa;
-      color: #333;
-    }
-    h3 {
-      margin-top: 0;
-      font-size: 16px;
-      color: #1a73e8;
-    }
-    .form-group {
-      margin-bottom: 12px;
-    }
-    label {
-      display: block;
-      font-size: 13px;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    input[type="text"], select {
-      width: 100%;
-      padding: 6px;
-      box-sizing: border-box;
-      border: 1px solid #dadce0;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-    .profile-actions {
-      display: flex;
-      gap: 5px;
-      margin-top: 5px;
-    }
-    .profile-actions button {
-      padding: 4px 8px;
-      font-size: 11px;
-      border: 1px solid #dadce0;
-      border-radius: 4px;
-      background: #f1f3f4;
-      cursor: pointer;
-      color: #333;
-    }
-    .profile-actions button:hover {
-      background: #e8eaed;
-    }
-    .button-group {
-      display: flex;
-      gap: 5px;
-      margin-top: 15px;
-    }
-    .main-btn {
-      flex: 1;
-      padding: 8px 4px;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 12px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background-color 0.2s;
-    }
-    #highlightBtn { background-color: #1a73e8; }
-    #highlightBtn:hover { background-color: #1557b0; }
-    #tickBtn { background-color: #d93025; }
-    #tickBtn:hover { background-color: #b3261e; }
-    #saveBtn { background-color: #188038; }
-    #saveBtn:hover { background-color: #13662c; }
-    
-    .status {
-      margin-top: 8px;
-      font-size: 12px;
-      color: #188038;
-      text-align: center;
-      min-height: 14px;
-    }
-    .results {
-      margin-top: 15px;
-      padding-top: 10px;
-      border-top: 1px solid #dadce0;
-    }
-    .results h4 {
-      margin: 0 0 8px 0;
-      color: #d93025;
-      font-size: 14px;
-    }
-    .table-container {
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
-    th, td {
-      border: 1px solid #dadce0;
-      padding: 6px 4px;
-      text-align: left;
-      word-break: break-word;
-    }
-    th {
-      background-color: #f1f3f4;
-      position: sticky;
-      top: 0;
-    }
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; width: 520px; max-height: 600px; margin: 0; padding: 16px; overflow-y: auto; background: #f8f9fa; color: #263238; }
+    h3 { margin: 0; font-size: 17px; color: #1a73e8; }
+    h4 { margin: 0 0 9px; font-size: 14px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .auth { display: flex; align-items: center; gap: 7px; font-size: 11px; color: #5f6368; }
+    .auth button, .small-btn { padding: 5px 8px; border: 1px solid #dadce0; border-radius: 5px; background: white; cursor: pointer; }
+    .form-group { margin-bottom: 11px; }
+    label { display: block; margin-bottom: 5px; font-size: 12px; font-weight: bold; }
+    input[type="text"], textarea, select { width: 100%; padding: 7px; border: 1px solid #dadce0; border-radius: 5px; font: inherit; font-size: 13px; background: white; }
+    textarea { resize: vertical; min-height: 48px; }
+    .profile-actions, .button-group, .draft-actions { display: flex; gap: 6px; margin-top: 6px; }
+    .profile-actions button { padding: 4px 8px; font-size: 11px; border: 1px solid #dadce0; border-radius: 4px; background: #f1f3f4; cursor: pointer; }
+    .button-group { margin-top: 14px; }
+    .main-btn { flex: 1; padding: 9px 5px; color: white; border: 0; border-radius: 5px; font-size: 12px; cursor: pointer; font-weight: bold; }
+    #highlightBtn { background: #1a73e8; } #tickBtn { background: #d93025; } #saveBtn { background: #188038; }
+    .status { margin: 8px 0; min-height: 14px; text-align: center; font-size: 12px; color: #188038; }
+    .results, .draft { margin-top: 14px; padding-top: 12px; border-top: 1px solid #dadce0; }
+    .table-container { max-height: 190px; overflow: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th, td { padding: 6px 4px; border: 1px solid #dadce0; text-align: left; vertical-align: top; word-break: break-word; }
+    th { position: sticky; top: 0; background: #f1f3f4; }
+    .draft-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .draft-meta { margin: 5px 0 10px; color: #5f6368; font-size: 11px; }
+    .draft-defaults { display: grid; grid-template-columns: 150px 1fr; gap: 7px; margin-bottom: 8px; }
+    .draft-table select, .draft-table textarea { min-width: 100px; padding: 5px; font-size: 11px; }
+    .draft-table textarea { min-width: 145px; min-height: 36px; }
+    #confirmDraftBtn { flex: 1; padding: 9px; border: 0; border-radius: 5px; color: white; background: #0b57d0; font-weight: bold; }
+    #discardDraftBtn { padding: 9px; border: 1px solid #dadce0; border-radius: 5px; background: white; color: #d93025; }
+    .hidden { display: none !important; }
+    .login-gate { padding: 34px 24px; text-align: center; border: 1px solid #dbe4f3; border-radius: 14px; background: white; }
+    .login-gate h4 { margin: 12px 0 7px; font-size: 16px; }
+    .login-gate p { margin: 0 auto 18px; max-width: 390px; color: #5f6368; font-size: 12px; line-height: 1.5; }
+    .gate-icon { display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; color: white; background: linear-gradient(135deg, #1a73e8, #7c3aed); font-weight: 900; }
+    #gateLoginBtn { padding: 10px 18px; border: 0; border-radius: 6px; color: white; background: #1a73e8; font-weight: bold; cursor: pointer; }
+    .manual { padding: 13px; border: 1px solid #cbd9ee; border-radius: 10px; background: #fff; }
+    .manual h4 { color: #1a73e8; }
+    .manual p { margin: -3px 0 10px; color: #5f6368; font-size: 11px; }
+    .manual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .manual-grid .wide { grid-column: 1 / -1; }
+    #addManualBtn { width: 100%; margin-top: 9px; padding: 9px; border: 1px solid #1a73e8; border-radius: 6px; color: #1a73e8; background: #eef5ff; font-weight: bold; cursor: pointer; }
+    .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 12px; padding: 4px; border-radius: 9px; background: #e9eef6; }
+    .tab-btn { position: relative; padding: 8px 5px; border: 0; border-radius: 6px; background: transparent; color: #5f6368; font-size: 12px; font-weight: bold; cursor: pointer; }
+    .tab-btn.active { color: #1a73e8; background: white; box-shadow: 0 1px 4px #26323820; }
+    .tab-badge { display: inline-grid; place-items: center; min-width: 17px; height: 17px; margin-left: 3px; padding: 0 4px; border-radius: 999px; color: white; background: #d93025; font-size: 10px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .draft-empty { padding: 42px 20px; text-align: center; color: #5f6368; border: 1px dashed #b8c5d8; border-radius: 10px; background: white; }
+    .draft-empty b { display: block; margin-bottom: 7px; color: #263238; }
   </style>
 </head>
 <body>
-  <h3>Highlight & Select Metrics</h3>
-  
+  <div class="topbar">
+    <h3>Highlight & Action Reminder</h3>
+    <div class="auth"><span id="authLabel">Chưa đăng nhập</span><button id="authBtn">Đăng nhập</button></div>
+  </div>
+
+  <section id="loginGate" class="login-gate">
+    <div class="gate-icon">AF</div>
+    <h4>Đăng nhập để sử dụng ADS-FOX</h4>
+    <p>Tool cần Firebase Authentication để đồng bộ Quick Tick, action và reminder theo đúng tài khoản của bạn.</p>
+    <button id="gateLoginBtn">Đăng nhập với Google</button>
+  </section>
+
+  <main id="toolContent" class="hidden">
+  <nav class="tabs" aria-label="Chức năng">
+    <button class="tab-btn active" data-tab="quickTab">Quick Tick</button>
+    <button class="tab-btn" data-tab="manualTab">Thêm thủ công</button>
+    <button class="tab-btn" data-tab="draftTab">Draft <span id="draftBadge" class="tab-badge hidden">0</span></button>
+  </nav>
+  <div id="statusMsg" class="status"></div>
+
+  <section id="quickTab" class="tab-panel active">
   <div class="form-group">
     <label for="profileSelect">Profile:</label>
     <select id="profileSelect"></select>
-    <div class="profile-actions">
-      <button id="newProfileBtn">New</button>
-      <button id="setDefaultBtn">Set Default</button>
-      <button id="delProfileBtn" style="color: #d93025;">Delete</button>
+    <div class="profile-actions"><button id="newProfileBtn">New</button><button id="setDefaultBtn">Set Default</button><button id="delProfileBtn" style="color:#d93025">Delete</button></div>
+  </div>
+  <div class="form-group"><label for="cost">Cost (Greater than or equal &gt;=):</label><input type="text" id="cost" value="1"></div>
+  <div class="form-group"><label for="convValue">Conv. Value / Cost (Less than or equal &lt;=):</label><input type="text" id="convValue" value="0.59"></div>
+  <div class="button-group"><button id="highlightBtn" class="main-btn">Run</button><button id="tickBtn" class="main-btn">Quick Tick</button><button id="saveBtn" class="main-btn">Save Config</button></div>
+  <section class="results hidden" id="resultsContainer"><h4>Target Missed:</h4><div class="table-container"><table><thead><tr><th>Name</th><th>Cost</th><th>Conv.</th><th>All Conv.</th></tr></thead><tbody id="failedList"></tbody></table></div></section>
+  </section>
+
+  <section id="manualTab" class="tab-panel">
+  <div class="manual">
+    <h4>Thêm action / note thủ công</h4>
+    <p>Dùng khi bạn muốn ghi thêm reminder mà không cần chạy Quick Tick.</p>
+    <div class="manual-grid">
+      <div class="wide"><label for="manualCampaign">Campaign *</label><input id="manualCampaign" type="text" placeholder="A147_WW_Identifier_1/6"></div>
+      <div class="wide"><label for="manualCountries">Quốc gia</label><input id="manualCountries" type="text" placeholder="Ukraine, Greece (có thể để trống)"></div>
+      <div><label for="manualAction">Action</label><select id="manualAction"><option value="pause">Pause</option><option value="enable">Enable</option><option value="exclude">Exclude</option><option value="remove">Remove</option><option value="other">Other</option></select></div>
+      <div><label for="manualNote">Custom note</label><input id="manualNote" type="text" placeholder="Nhắc việc cần làm…"></div>
     </div>
+    <button id="addManualBtn">+ Thêm vào draft</button>
   </div>
+  </section>
 
-  <div class="form-group">
-    <label for="cost">Cost (Greater than or equal >=):</label>
-    <input type="text" id="cost" value="1">
-  </div>
-  
-  <div class="form-group">
-    <label for="convValue">Conv. Value / Cost (Less than or equal <=):</label>
-    <input type="text" id="convValue" value="0.59">
-  </div>
-
-  <div class="button-group">
-    <button id="highlightBtn" class="main-btn">Run</button>
-    <button id="tickBtn" class="main-btn">Quick Tick</button>
-    <button id="saveBtn" class="main-btn">Save Config</button>
-  </div>
-  <div id="statusMsg" class="status"></div>
-
-  <div class="results" id="resultsContainer" style="display: none;">
-    <h4>Target Missed Locations:</h4>
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Location</th>
-            <th>Cost</th>
-            <th>Conv.</th>
-            <th>All Conv.</th>
-          </tr>
-        </thead>
-        <tbody id="failedList"></tbody>
-      </table>
-    </div>
-  </div>
-
+  <section id="draftTab" class="tab-panel">
+  <div id="draftEmpty" class="draft-empty"><b>Chưa có action trong draft</b>Chạy Quick Tick hoặc thêm một action thủ công.</div>
+  <section id="draftContainer" class="draft hidden">
+    <div class="draft-head"><h4>Action chờ xác nhận (<span id="draftCount">0</span>)</h4><span id="draftDate" class="draft-meta"></span></div>
+    <p class="draft-meta">Hãy thực hiện action trên Google Ads trước, sau đó xác nhận tại đây.</p>
+    <div class="draft-defaults"><select id="batchAction"></select><input id="batchNote" type="text" placeholder="Note chung (tùy chọn)"></div>
+    <button id="applyBatchBtn" class="small-btn">Áp dụng cho tất cả</button>
+    <div class="table-container" style="margin-top:8px"><table class="draft-table"><thead><tr><th>Đối tượng</th><th>Action</th><th>Note</th></tr></thead><tbody id="draftList"></tbody></table></div>
+    <div class="draft-actions"><button id="confirmDraftBtn">Xác nhận đã xử lý & lưu</button><button id="discardDraftBtn">Bỏ draft</button></div>
+  </section>
+  </section>
+  </main>
+  <script src="config.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

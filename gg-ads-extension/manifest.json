@@ -1,15 +1,22 @@
 {
   "manifest_version": 3,
-  "name": "GG Ads Highlighter",
-  "version": "1.0",
-  "description": "Highlight rows in Google Ads based on Cost and Conv. Value/Cost",
+  "name": "ADS-FOX Action Reminder",
+  "version": "1.3.0",
+  "description": "Highlight Google Ads targets, create Quick Tick drafts, and sync confirmed actions to Firebase",
   "action": {
     "default_popup": "popup.html",
     "default_title": "Highlight Ads Data"
   },
   "permissions": [
     "activeTab",
+    "identity",
     "scripting",
     "storage"
+  ],
+  "host_permissions": [
+    "https://ads.google.com/*",
+    "https://firestore.googleapis.com/*",
+    "https://securetoken.googleapis.com/*",
+    "https://remd-c8ddb.web.app/*"
   ]
 }
